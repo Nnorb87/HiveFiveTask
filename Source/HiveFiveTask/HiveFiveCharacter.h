@@ -1,41 +1,25 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
-#include "BasePawn.generated.h"
+#include "GameFramework/Character.h"
+#include "HiveFiveCharacter.generated.h"
 
 UCLASS()
-class HIVEFIVETASK_API ABasePawn : public APawn
+class HIVEFIVETASK_API AHiveFiveCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	ABasePawn();
+	AHiveFiveCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UFUNCTION(Server, Reliable)
-	void ServerMoveToLocation(AController* PlayerController, const FVector& TargetLocation);
-
-	UFUNCTION(Server, Reliable)
-	void ServerMove(float Value);
-
-	UFUNCTION(Server, Reliable)
-	void ServerTurn(float Value);
-
-	UFUNCTION(Server, Reliable)
-	void ServerRotate(FVector LookAtTarget);
-
-
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UCapsuleComponent* CapsuleComponent;
+
+	UCapsuleComponent* CapsuleComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* BaseMesh;
@@ -50,10 +34,10 @@ private:
 	class UCameraComponent* Camera;
 
 	UPROPERTY(EditAnywhere, category = "Movement")
-	float MovementSpeed = 500.f;
+	float MovementSpeed = 600.f;
 
 	UPROPERTY(EditAnywhere, category = "Movement")
-	float TurnRate = 45.f;
+	float TurnRate = 120.f;
 
 	FVector TargetVector = FVector::ZeroVector;
 	APlayerController* PlayerControllerRef;
@@ -67,4 +51,13 @@ private:
 	FVector FindNearestNavMeshPoint(const FVector& Location);
 	void Rotate(FVector LookAtTarget);
 	bool AutoRotation = false;
+
+	UFUNCTION(Server, Reliable)
+	void ServerRotate(FVector LookAtTarget);
+
+	UFUNCTION(Server, Reliable)
+	void ServerMovement(float Value);
+
+	UFUNCTION(Server, Reliable)
+	void ServerTurn(float Value);
 };

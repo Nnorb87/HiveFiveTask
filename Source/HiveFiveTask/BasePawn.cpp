@@ -5,6 +5,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine.h"
+#include "Net/UnrealNetwork.h"
 
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "AIController.h"
@@ -12,6 +14,7 @@
 
 ABasePawn::ABasePawn(){
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates =true;
 
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Collider"));
 	RootComponent = CapsuleComponent;
@@ -64,21 +67,31 @@ void ABasePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 }
 
 void ABasePawn::Move(float Value){
-	if (FMath::Abs(Value)>0.f){ 
+	if (FMath::Abs(Value)>0.f){
 		AutoRotation = false;
 	}
+
 	FVector DeltaLocation = FVector::ZeroVector;
 	DeltaLocation.X = Value * UGameplayStatics::GetWorldDeltaSeconds(this) * MovementSpeed;
 	AddActorLocalOffset(DeltaLocation, true);
+
+	 if(!HasAuthority()) {
+		ServerMove(Value);
+	}
 }
 
+
 void ABasePawn::Turn(float Value){
-	if (FMath::Abs(Value)>0.f){ 
+	if (FMath::Abs(Value)>0.f){
 		AutoRotation = false;
 	}
 	FRotator DetlaRotation = FRotator::ZeroRotator;
 	DetlaRotation.Yaw = Value * UGameplayStatics::GetWorldDeltaSeconds(this) * TurnRate;
 	AddActorLocalRotation(DetlaRotation, true);
+
+	if(!HasAuthority()) {
+		ServerTurn(Value);
+	}
 
 }
 
@@ -102,12 +115,16 @@ void ABasePawn::MoveClick(){
 
 	TargetVector = HitResult.ImpactPoint;
 
-	FVector NearestNavMeshPoint = FindNearestNavMeshPoint(TargetVector);
-	MoveToLocation(NearestNavMeshPoint);
+	MoveToLocation(GetController(),TargetVector);
+	
+	 if (!HasAuthority()) {     
+            ServerMoveToLocation(GetController(), TargetVector); 
+        }
 }
 
-void ABasePawn::MoveToLocation(const FVector& TargetLocation){
-    UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), TargetLocation);
+void ABasePawn::MoveToLocation(AController* PlayerController, const FVector& TargetLocation){
+	FVector NearestNavMeshPoint = FindNearestNavMeshPoint(TargetVector);
+    UAIBlueprintHelperLibrary::SimpleMoveToLocation(PlayerController, TargetLocation);
 }
 
 FVector ABasePawn::FindNearestNavMeshPoint(const FVector& Location){
@@ -134,7 +151,9 @@ void ABasePawn::Rotate(FVector LookAtTarget){
 			5.f
 		)
 	);
-
+	if(!HasAuthority()) {
+		ServerRotate(LookAtTarget);
+	}
 }
 
 void ABasePawn::Fire(){
@@ -147,4 +166,20 @@ void ABasePawn::Fire(){
 		);
 	}
 
+}
+
+void ABasePawn::ServerMoveToLocation_Implementation(AController* PlayerController, const FVector& TargetLocation){
+	MoveToLocation(PlayerController, TargetLocation);
+}
+
+void ABasePawn::ServerMove_Implementation(float Value){
+	Move(Value);
+}
+
+void ABasePawn::ServerTurn_Implementation(float Value){
+	Turn(Value);
+}
+
+void ABasePawn::ServerRotate_Implementation(FVector LookAtTarget){
+	Rotate(LookAtTarget);
 }
