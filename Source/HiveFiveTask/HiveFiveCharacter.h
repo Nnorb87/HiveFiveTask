@@ -39,19 +39,21 @@ private:
 	UPROPERTY(EditAnywhere, category = "Movement")
 	float TurnRate = 120.f;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AProjectile> ProjectileClass;
+
 	FVector TargetVector = FVector::ZeroVector;
 	APlayerController* PlayerControllerRef;
+	bool AutoRotation = false;
 
 	void Move(float Value);
 	void Turn(float Value);
 	void Fire();
 	void MoveClick();
-	
 	void MoveToLocation(AController* PlayerController, const FVector& TargetLocation);
-	FVector FindNearestNavMeshPoint(const FVector& Location);
 	void Rotate(FVector LookAtTarget);
-	bool AutoRotation = false;
-
+	FVector FindNearestNavMeshPoint(const FVector& Location);
+	
 	UFUNCTION(Server, Reliable)
 	void ServerRotate(FVector LookAtTarget);
 
@@ -60,4 +62,10 @@ private:
 
 	UFUNCTION(Server, Reliable)
 	void ServerTurn(float Value);
+
+	UFUNCTION(Server, Reliable)
+	void ServerFire();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastFire();
 };

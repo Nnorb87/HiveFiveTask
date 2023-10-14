@@ -4,6 +4,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "NavigationSystem.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Components/CapsuleComponent.h"
+#include "Projectile.h"
 
 AHiveFiveCharacter::AHiveFiveCharacter(){
 	PrimaryActorTick.bCanEverTick = true;
@@ -26,6 +28,8 @@ AHiveFiveCharacter::AHiveFiveCharacter(){
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera -> SetupAttachment(SpringArm);
 
+	// CapsuleComponent = FindComponentByClass<UCapsuleComponent>();
+
 }
 
 void AHiveFiveCharacter::BeginPlay(){
@@ -46,7 +50,6 @@ void AHiveFiveCharacter::Tick(float DeltaTime){
 	if (AutoRotation){
 		Rotate(TargetVector);
 	}
-
 }
 
 void AHiveFiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent){
@@ -148,15 +151,7 @@ void AHiveFiveCharacter::Turn(float Value){
 }
 
 void AHiveFiveCharacter::Fire(){
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.0f,
-			FColor::Blue,
-			FString::Printf(TEXT("Fire"))
-		);
-	}
-
+	ServerFire();	
 }
 
 void AHiveFiveCharacter::ServerRotate_Implementation(FVector LookAtTarget){
@@ -169,4 +164,25 @@ void AHiveFiveCharacter::ServerMovement_Implementation(float Value){
 
 void AHiveFiveCharacter::ServerTurn_Implementation(float Value){
 	Turn(Value);
+}
+
+void AHiveFiveCharacter::ServerFire_Implementation(){
+	MulticastFire();
+}
+
+void AHiveFiveCharacter::MulticastFire_Implementation(){
+	if(ProjectileClass && ProjectileSpawnPoint){
+		UWorld* World = GetWorld();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = this;
+
+		if(World){
+			World->SpawnActor<AProjectile>(
+				ProjectileClass,
+				ProjectileSpawnPoint->GetComponentTransform(),
+				SpawnParams
+			);
+		}
+	}
 }

@@ -70,5 +70,21 @@
 			"@C:\\Art\\Unreal\\HiveFiveTask\\.vscode\\compileCommands_Default\\HiveFiveTask.255.rsp"
 		],
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.1\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Art\\Unreal\\HiveFiveTask\\Source\\HiveFiveTask\\Projectile.cpp",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe",
+			"@C:\\Art\\Unreal\\HiveFiveTask\\.vscode\\compileCommands_Default\\HiveFiveTask.255.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.1\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Art\\Unreal\\HiveFiveTask\\Source\\HiveFiveTask\\Projectile.h",
+		"arguments": [
+			"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe",
+			"@C:\\Art\\Unreal\\HiveFiveTask\\.vscode\\compileCommands_Default\\HiveFiveTask.255.rsp"
+		],
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.1\\Engine\\Source"
 	}
 ]
