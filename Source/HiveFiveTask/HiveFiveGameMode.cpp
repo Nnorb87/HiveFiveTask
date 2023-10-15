@@ -36,13 +36,13 @@ void AHiveFiveGameMode::RequestRespawn(ACharacter *ElimmedCharacter, AController
 
 bool AHiveFiveGameMode::IsThereAnyCollision(const FVector& SphereCenter, float SphereRadius)
 {
-    FColor DebugSphereColor = FColor::Green; 
-    // DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, DebugSphereColor, false, 5.f, 0, 1);
     FCollisionQueryParams CollisionParams;
     TArray<FHitResult> OverlappingActors;
     UWorld* World = GetWorld();
     if (World->SweepMultiByChannel(OverlappingActors, SphereCenter, SphereCenter, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(SphereRadius), CollisionParams)){
+        DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, false, 5.f, 0, 1);
         return true;
     }
+    DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Green, false, 5.f, 0, 1);
     return false;
 }

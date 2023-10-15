@@ -2,6 +2,10 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "HiveFiveCharacter.h"
+#include "GameFramework/PlayerController.h"
+#include "HiveFivePlayerController.h"
+#include "GameFramework/GameStateBase.h"
+#include "HiveFiveGameState.h"
 
 AProjectile::AProjectile(){
 	bReplicates = true;
@@ -39,6 +43,20 @@ void AProjectile::Tick(float DeltaTime){
 void AProjectile::Onhit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit){
 	AHiveFiveCharacter* HiveFiveCharacter = Cast<AHiveFiveCharacter>(OtherActor);
 	if(HiveFiveCharacter){
+		AHiveFiveCharacter* ProjectileOwnerCharacter = Cast<AHiveFiveCharacter>(GetOwner());
+		APlayerController* PlayerController = Cast<APlayerController>(ProjectileOwnerCharacter->GetController());
+            if (PlayerController){
+                AGameStateBase* GameState = PlayerController->GetWorld()->GetGameState();
+				if(GameState){
+					AHiveFiveGameState* HFGameState = Cast<AHiveFiveGameState>(GameState);
+					if (HFGameState){
+						HFGameState->IncreaseScore();
+						if (HasAuthority()){
+							HFGameState->UpdateScore();
+						}
+					}
+				}
+            }
 		HiveFiveCharacter->PlayerRespawn();
 		}
 	Destroy();

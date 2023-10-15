@@ -16,13 +16,12 @@ public:
 
 	void PlayerRespawn();
 
-	UFUNCTION(Server, Reliable)
-	void ServerPlayerRespawn();
-
 	UFUNCTION(Blueprintcallable)
 	void OpenLobby();
+
 	UFUNCTION(Blueprintcallable)
 	void CallOpenLevel(const FString& Address);
+
 	UFUNCTION(Blueprintcallable)
 	void CallClientTravel(const FString& Address);
 
@@ -30,9 +29,6 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-
-	UCapsuleComponent* CapsuleComponent;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* BaseMesh;
 
@@ -54,33 +50,29 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectile> ProjectileClass;
 
+	class UCharacterMovementComponent* CharacterMovementComponent;
 	FVector TargetVector = FVector::ZeroVector;
 	APlayerController* PlayerControllerRef;
-	bool AutoRotation = false;
-
-	void Move(float Value);
-	void Turn(float Value);
-	void Fire();
+	
 	void MoveClick();
 	void MoveToLocation(AController* PlayerController, const FVector& TargetLocation);
-	void Rotate(FVector LookAtTarget);
 	FVector FindNearestNavMeshPoint(const FVector& Location);
-	
-	UFUNCTION(Server, Reliable)
-	void ServerRotate(FVector LookAtTarget);
+
+
+	void Move(float Value);
 
 	UFUNCTION(Server, Reliable)
 	void ServerMovement(float Value);
 
+	void Turn(float Value);
 	UFUNCTION(Server, Reliable)
+
 	void ServerTurn(float Value);
+
+	void Fire();
+
+	void SpawnProjectile();
 
 	UFUNCTION(Server, Reliable)
 	void ServerFire();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastFire();
-
-	UFUNCTION(Server,Reliable)
-	void ServerMoveToLocation(AController* PlayerController, const FVector& TargetLocation);
 };

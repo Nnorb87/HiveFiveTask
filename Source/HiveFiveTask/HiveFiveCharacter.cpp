@@ -9,6 +9,11 @@
 #include "GameFramework/PlayerStart.h"
 #include "HiveFiveGameMode.h"
 #include "HiveFivePlayerController.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Actor.h"
+#include "Net/UnrealNetwork.h"
+#include "HiveFiveHUD.h"
+#include "ScoreBoardUserWidget.h"
 
 AHiveFiveCharacter::AHiveFiveCharacter(){
 	PrimaryActorTick.bCanEverTick = true;
@@ -33,6 +38,10 @@ AHiveFiveCharacter::AHiveFiveCharacter(){
 
 	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
+	CharacterMovementComponent = GetCharacterMovement();
+	FRotator RotationSpeed = FRotator(0.f,0.f,360.f);
+	CharacterMovementComponent->RotationRate = RotationSpeed;
+
 
 }
 
@@ -46,14 +55,10 @@ void AHiveFiveCharacter::BeginPlay(){
         PlayerControllerRef->bEnableClickEvents = true;
         PlayerControllerRef->bEnableMouseOverEvents = true;
     }
-
 }
 
 void AHiveFiveCharacter::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
-	if (AutoRotation){
-		Rotate(TargetVector);
-	}
 }
 
 void AHiveFiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent){
@@ -65,26 +70,8 @@ void AHiveFiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 }
 
-void AHiveFiveCharacter::Rotate(FVector LookAtTarget){
-	FVector ToTarget = LookAtTarget - BaseMesh->GetComponentLocation();
-	FRotator LookAtRotation = ToTarget.Rotation();
-	LookAtRotation.Roll = 0.f;
-	LookAtRotation.Pitch = 0.f;
-	RootComponent->SetWorldRotation(
-		FMath::RInterpTo(
-			BaseMesh->GetComponentRotation(),
-			LookAtRotation,
-			UGameplayStatics::GetWorldDeltaSeconds(this),
-			5.f
-		)
-	);
-	if(!HasAuthority()) {
-		ServerRotate(LookAtTarget);
-	}
-}
-
+// Movement with Mouse Click
 void AHiveFiveCharacter::MoveClick(){
-		AutoRotation = true;
 		FHitResult HitResult;
 		PlayerControllerRef = Cast<APlayerController>(GetController());
 		if(PlayerControllerRef){
@@ -103,10 +90,6 @@ void AHiveFiveCharacter::MoveClick(){
 
 		TargetVector = HitResult.ImpactPoint;
 		MoveToLocation(GetController(),TargetVector);
-
-	if (!HasAuthority()){     
-		ServerMoveToLocation(GetController(), TargetVector); 
-	}
 }
 
 void AHiveFiveCharacter::MoveToLocation(AController* PlayerController, const FVector& TargetLocation){
@@ -125,70 +108,21 @@ FVector AHiveFiveCharacter::FindNearestNavMeshPoint(const FVector& Location){
     return Location;
 }
 
-void AHiveFiveCharacter::Move(float Value){
-	if (FMath::Abs(Value)>0.f){
-		AutoRotation = false;
-	}
-
-	FVector DeltaLocation = FVector::ZeroVector;
-	DeltaLocation.X = Value * UGameplayStatics::GetWorldDeltaSeconds(this) * MovementSpeed;
-	AddActorLocalOffset(DeltaLocation, true);
-
-	 if(!HasAuthority()) {
-		ServerMovement(Value);
-	}
-}
-
-void AHiveFiveCharacter::Turn(float Value){
-	if (FMath::Abs(Value)>0.f){
-		AutoRotation = false;
-	}
-	FRotator DetlaRotation = FRotator::ZeroRotator;
-	DetlaRotation.Yaw = Value * UGameplayStatics::GetWorldDeltaSeconds(this) * TurnRate;
-	AddActorLocalRotation(DetlaRotation, true);
-
-	if(!HasAuthority()) {
-		ServerTurn(Value);
-	}
-
-}
-
+// Attack
 void AHiveFiveCharacter::Fire(){
-	ServerFire();	
-}
-
-void AHiveFiveCharacter::PlayerRespawn(){
-	ServerPlayerRespawn();
-}
-
-void AHiveFiveCharacter::ServerRotate_Implementation(FVector LookAtTarget){
-	Rotate(LookAtTarget);
-}
-
-void AHiveFiveCharacter::ServerMovement_Implementation(float Value){
-	Move(Value);
-}
-
-void AHiveFiveCharacter::ServerTurn_Implementation(float Value){
-	Turn(Value);
+	if(HasAuthority()){
+		SpawnProjectile();
+	} else {
+		ServerFire();
+	}
+	
 }
 
 void AHiveFiveCharacter::ServerFire_Implementation(){
-	MulticastFire();
+	SpawnProjectile();
 }
 
-void AHiveFiveCharacter::ServerMoveToLocation_Implementation(AController* PlayerController, const FVector& TargetLocation){
-	MoveToLocation(PlayerController, TargetLocation);
-}
-
-void AHiveFiveCharacter::ServerPlayerRespawn_Implementation(){
-		AHiveFiveGameMode* HiveFiveGameMode = GetWorld()->GetAuthGameMode<AHiveFiveGameMode>();
-	if (HiveFiveGameMode){
-		HiveFiveGameMode->RequestRespawn(this, Controller);
-	}
-}
-
-void AHiveFiveCharacter::MulticastFire_Implementation(){
+void AHiveFiveCharacter::SpawnProjectile(){
 	if(ProjectileClass && ProjectileSpawnPoint){
 		UWorld* World = GetWorld();
 		FActorSpawnParameters SpawnParams;
@@ -205,6 +139,45 @@ void AHiveFiveCharacter::MulticastFire_Implementation(){
 	}
 }
 
+// Respawn
+void AHiveFiveCharacter::PlayerRespawn(){
+	AHiveFiveGameMode* HiveFiveGameMode = GetWorld()->GetAuthGameMode<AHiveFiveGameMode>();
+	if (HiveFiveGameMode){
+		HiveFiveGameMode->RequestRespawn(this, Controller);
+	}
+}
+
+//WASD Movement Will be deleted
+void AHiveFiveCharacter::Move(float Value){
+	FVector DeltaLocation = FVector::ZeroVector;
+	DeltaLocation.X = Value * UGameplayStatics::GetWorldDeltaSeconds(this) * MovementSpeed;
+	AddActorLocalOffset(DeltaLocation, true);
+
+	 if(!HasAuthority()) {
+		ServerMovement(Value);
+	}
+}
+
+void AHiveFiveCharacter::ServerMovement_Implementation(float Value){
+	Move(Value);
+}
+
+void AHiveFiveCharacter::Turn(float Value){
+	FRotator DetlaRotation = FRotator::ZeroRotator;
+	DetlaRotation.Yaw = Value * UGameplayStatics::GetWorldDeltaSeconds(this) * TurnRate;
+	AddActorLocalRotation(DetlaRotation, true);
+
+	if(!HasAuthority()) {
+		ServerTurn(Value);
+	}
+
+}
+
+void AHiveFiveCharacter::ServerTurn_Implementation(float Value){
+	Turn(Value);
+}
+
+// Multiplayer joining part for builds
 void AHiveFiveCharacter::OpenLobby()
 {
 	UWorld* world = GetWorld();
