@@ -6,6 +6,9 @@
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Projectile.h"
+#include "GameFramework/PlayerStart.h"
+#include "HiveFiveGameMode.h"
+#include "HiveFivePlayerController.h"
 
 AHiveFiveCharacter::AHiveFiveCharacter(){
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,7 +31,8 @@ AHiveFiveCharacter::AHiveFiveCharacter(){
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera -> SetupAttachment(SpringArm);
 
-	// CapsuleComponent = FindComponentByClass<UCapsuleComponent>();
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
 
 }
 
@@ -42,11 +46,11 @@ void AHiveFiveCharacter::BeginPlay(){
         PlayerControllerRef->bEnableClickEvents = true;
         PlayerControllerRef->bEnableMouseOverEvents = true;
     }
+
 }
 
 void AHiveFiveCharacter::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
-	UE_LOG(LogTemp, Warning, TEXT("%d"),AutoRotation);
 	if (AutoRotation){
 		Rotate(TargetVector);
 	}
@@ -80,30 +84,29 @@ void AHiveFiveCharacter::Rotate(FVector LookAtTarget){
 }
 
 void AHiveFiveCharacter::MoveClick(){
-	AutoRotation = true;
-	FHitResult HitResult;
+		AutoRotation = true;
+		FHitResult HitResult;
+		PlayerControllerRef = Cast<APlayerController>(GetController());
+		if(PlayerControllerRef){
+			PlayerControllerRef->GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel1, false, HitResult);
 
-	if(PlayerControllerRef){
-		PlayerControllerRef->GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel1, false, HitResult);
+			DrawDebugSphere(
+			GetWorld(),
+			HitResult.ImpactPoint,
+			10.f,
+			12,
+			FColor::Red,
+			false,
+			5.f
+			);
+		}
 
-		DrawDebugSphere(
-		GetWorld(),
-		HitResult.ImpactPoint,
-		10.f,
-		12,
-		FColor::Red,
-		false,
-		5.f
-		);
+		TargetVector = HitResult.ImpactPoint;
+		MoveToLocation(GetController(),TargetVector);
+
+	if (!HasAuthority()){     
+		ServerMoveToLocation(GetController(), TargetVector); 
 	}
-
-	TargetVector = HitResult.ImpactPoint;
-
-	MoveToLocation(GetController(),TargetVector);
-	
-	//  if (!HasAuthority()) {     
-    //         ServerMoveToLocation(GetController(), TargetVector); 
-    //     }
 }
 
 void AHiveFiveCharacter::MoveToLocation(AController* PlayerController, const FVector& TargetLocation){
@@ -154,6 +157,10 @@ void AHiveFiveCharacter::Fire(){
 	ServerFire();	
 }
 
+void AHiveFiveCharacter::PlayerRespawn(){
+	ServerPlayerRespawn();
+}
+
 void AHiveFiveCharacter::ServerRotate_Implementation(FVector LookAtTarget){
 	Rotate(LookAtTarget);
 }
@@ -170,6 +177,17 @@ void AHiveFiveCharacter::ServerFire_Implementation(){
 	MulticastFire();
 }
 
+void AHiveFiveCharacter::ServerMoveToLocation_Implementation(AController* PlayerController, const FVector& TargetLocation){
+	MoveToLocation(PlayerController, TargetLocation);
+}
+
+void AHiveFiveCharacter::ServerPlayerRespawn_Implementation(){
+		AHiveFiveGameMode* HiveFiveGameMode = GetWorld()->GetAuthGameMode<AHiveFiveGameMode>();
+	if (HiveFiveGameMode){
+		HiveFiveGameMode->RequestRespawn(this, Controller);
+	}
+}
+
 void AHiveFiveCharacter::MulticastFire_Implementation(){
 	if(ProjectileClass && ProjectileSpawnPoint){
 		UWorld* World = GetWorld();
@@ -184,5 +202,42 @@ void AHiveFiveCharacter::MulticastFire_Implementation(){
 				SpawnParams
 			);
 		}
+	}
+}
+
+void AHiveFiveCharacter::OpenLobby()
+{
+	UWorld* world = GetWorld();
+	world->ServerTravel("/Game/Menu?listen");
+	
+		if(GEngine){
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Blue,
+				FString::Printf(TEXT("Multiplayer level loaded"))
+			);
+		}
+
+}
+
+void AHiveFiveCharacter::CallOpenLevel(const FString& Address){
+	UGameplayStatics::OpenLevel(this, *Address);
+}
+
+void AHiveFiveCharacter::CallClientTravel(const FString& Address){
+	APlayerController* playerController = GetGameInstance()->GetFirstLocalPlayerController();
+	if(playerController){
+
+		if(GEngine){
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Blue,
+				FString::Printf(TEXT("Address: %s"),*Address)
+			);
+		}
+
+		playerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 	}
 }

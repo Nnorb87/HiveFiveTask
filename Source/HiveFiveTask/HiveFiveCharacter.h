@@ -14,6 +14,18 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void PlayerRespawn();
+
+	UFUNCTION(Server, Reliable)
+	void ServerPlayerRespawn();
+
+	UFUNCTION(Blueprintcallable)
+	void OpenLobby();
+	UFUNCTION(Blueprintcallable)
+	void CallOpenLevel(const FString& Address);
+	UFUNCTION(Blueprintcallable)
+	void CallClientTravel(const FString& Address);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -68,4 +80,7 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire();
+
+	UFUNCTION(Server,Reliable)
+	void ServerMoveToLocation(AController* PlayerController, const FVector& TargetLocation);
 };
