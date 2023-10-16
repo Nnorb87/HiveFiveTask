@@ -52,11 +52,5 @@ public:
 
 	void UpdateHUD(FString Name, FString Score);
 
-	UPROPERTY(ReplicatedUsing = OnNameUpdate)
 	TArray<FString> PlayerNames;
-
-	UFUNCTION()
-	void OnNameUpdate();
-	
-	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
 };

@@ -17,14 +17,18 @@
 void AHiveFiveGameMode::PostLogin(APlayerController* NewPlayer)
 {
     Super::PostLogin(NewPlayer);
+
+    if(!HasAuthority()){return;}
+
     UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
 
     if ( AHiveFivePlayerState* HiveFivePlayerState = Cast<AHiveFivePlayerState>(NewPlayer->PlayerState)){
         FString PlayerName = HiveFivePlayerState->GetPlayerName();
         int32 PlayerScore = HiveFivePlayerState->GetPlayerScore();
-        FString Authority = HasAuthority()? "Server":"Client";
-        UE_LOG(LogTemp, Warning, TEXT("Authority: %s Player Name: %s, Player Score: %d"),*Authority, *PlayerName, PlayerScore);
-        // HiveFivePlayerState->InitialUpdateHUD(PlayerName, FString::Printf(TEXT("%d"), PlayerScore));
+        UE_LOG(LogTemp, Warning, TEXT("Player Name: %s, Player Score: %d"), *PlayerName, PlayerScore);
+        if (AHiveFiveGameState* HFGameState = GetGameState<AHiveFiveGameState>()){
+            HFGameState->StoreClientNames(PlayerName, FString::Printf(TEXT("%d"), PlayerScore));
+        }
     }
 }
 

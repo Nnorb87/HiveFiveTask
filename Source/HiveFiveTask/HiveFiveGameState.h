@@ -12,7 +12,20 @@ class HIVEFIVETASK_API AHiveFiveGameState : public AGameState
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(ReplicatedUsing = OnNameUpdate)
+	TArray<FString> PlayerNamesArray;
+
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void OnNameUpdate();
+
+	void StoreClientNames(FString PName, FString PScore);
+
 	void IterateOverConnectedPlayers();
+
+	TArray<FString> GetPlayerNames();
 
 protected:
 	virtual void BeginPlay() override;

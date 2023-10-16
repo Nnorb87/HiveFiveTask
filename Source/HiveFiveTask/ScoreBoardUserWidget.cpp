@@ -23,16 +23,8 @@ void UScoreBoardUserWidget::SetPlayerScore(FString NewText) {
 
 void UScoreBoardUserWidget::SetPlayerData(FString Name, FString Score) {
     UE_LOG(LogTemp, Warning, TEXT("SetPlayerData"));
-
-    bool bNameFound = false;
-    for (const FString& PName : PlayerNames){
-            if (PName == Name){
-                bNameFound = true;
-                break;
-            }
-        }
-
-    if (bNameFound){
+    
+    if (PlayerNames.Contains(Name)){
         UpdateHUD(Name, Score);
     } else{
         PlayerNames.Add(Name);     
@@ -41,8 +33,8 @@ void UScoreBoardUserWidget::SetPlayerData(FString Name, FString Score) {
 }
 
 void UScoreBoardUserWidget::UpdateHUD(FString Name, FString Score){
+    UE_LOG(LogTemp, Warning, TEXT("UpdateHUD"));
     int32 Index = PlayerNames.Find(Name);
-    // UE_LOG(LogTemp, Warning, TEXT("Index %d"), Index);
     if (Index != INDEX_NONE) {
         switch (Index){
             case 0:
@@ -68,12 +60,4 @@ void UScoreBoardUserWidget::UpdateHUD(FString Name, FString Score){
     }else { 
         UE_LOG(LogTemp, Warning, TEXT("Invalid Index")); 
     }
-}
-
-void UScoreBoardUserWidget::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const{
-    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-    DOREPLIFETIME(UScoreBoardUserWidget, PlayerNames);
-}
-
-void UScoreBoardUserWidget::OnNameUpdate(){
 }

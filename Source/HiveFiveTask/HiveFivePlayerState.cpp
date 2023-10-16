@@ -23,11 +23,13 @@ void AHiveFivePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> 
 }
 
 void AHiveFivePlayerState::OnRepScore(){
+	// On Change of PlayerScore Client Updates thier HUD
     // UE_LOG(LogTemp, Warning, TEXT("Client: %s %d"),*GetPlayerName(), PlayerScore);
 	UpdateHUD();
 }
 
 void AHiveFivePlayerState::UpdateScore(){
+		// Server Calls it Changes PlayerScore and initiates OnRepScore so clients will syncronize thier HUD-s
 		IncreaseScore();
 		// UE_LOG(LogTemp, Warning, TEXT("Server: %s %d"),*GetPlayerName(), PlayerScore);
 		UpdateHUD();
@@ -45,15 +47,20 @@ void AHiveFivePlayerState::UpdateHUD(){
 		}
 }
 
-void AHiveFivePlayerState::InitialUpdateHUD(FString PName, FString PScore){
-	if (!HasAuthority()){ return; }
-	UE_LOG(LogTemp, Warning, TEXT("InitialUpdateHUD"));
-	if (AHiveFivePlayerController* HiveFivePlayerController =Cast<AHiveFivePlayerController>(GetWorld()->GetFirstPlayerController())){	
-	if (AHiveFiveHUD* HUD = Cast<AHiveFiveHUD>(HiveFivePlayerController->GetHUD())) {
+void AHiveFivePlayerState::InitialUpdateHUD(TArray<FString> PlayerNamesArray){
+		UE_LOG(LogTemp, Warning, TEXT("InitialUpdateHUD"));
 
-		if(UScoreBoardUserWidget* ScoreBoard = HUD->GetScoreBoard()){
-			ScoreBoard->SetPlayerData(PName, PScore);
+		if (AHiveFivePlayerController* HiveFivePlayerController =Cast<AHiveFivePlayerController>(GetWorld()->GetFirstPlayerController())){
+			
+			if (AHiveFiveHUD* HUD = Cast<AHiveFiveHUD>(HiveFivePlayerController->GetHUD())) {
+
+				if(UScoreBoardUserWidget* ScoreBoard = HUD->GetScoreBoard()){
+					for(FString PN : PlayerNamesArray){
+						ScoreBoard->SetPlayerData(PN, FString::Printf(TEXT("%d"), 0));
+					}
+					
+				}
+			}
 		}
-	}
-}
+
 }

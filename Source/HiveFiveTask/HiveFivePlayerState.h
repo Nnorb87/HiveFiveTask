@@ -18,13 +18,10 @@ public:
 
 	void UpdateScore();
 
-	void InitialUpdateHUD(FString Name, FString Score);
+	void InitialUpdateHUD(TArray<FString> PlayerNamesArray);
 
-protected:
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
+	int32 GetDisplayIndex(FString PName, FString PScore);
 
-private:
 	UPROPERTY(ReplicatedUsing = OnRepScore)
 	int32 PlayerScore;
 
@@ -32,5 +29,12 @@ private:
 	void OnRepScore();
 
 	void UpdateHUD();
+
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+
+private:
 
 };
