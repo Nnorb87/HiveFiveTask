@@ -3,8 +3,9 @@
 
 #include "ScoreBoardUserWidget.h"
 #include "Components/TextBlock.h"
-
-
+#include "GameFramework/Actor.h"
+#include "Components/VerticalBox.h"
+#include "Net/UnrealNetwork.h"
 
 void UScoreBoardUserWidget::SetPlayerName(FString NewText) {
     if (PlayerName){
@@ -17,6 +18,62 @@ void UScoreBoardUserWidget::SetPlayerScore(FString NewText) {
     if (PlayerScore){
         FText Text = FText::FromString(NewText);
         PlayerScore->SetText(Text);
-        UE_LOG(LogTemp, Warning, TEXT("%s"), *NewText);
     }
+}
+
+void UScoreBoardUserWidget::SetPlayerData(FString Name, FString Score) {
+    UE_LOG(LogTemp, Warning, TEXT("SetPlayerData"));
+
+    bool bNameFound = false;
+    for (const FString& PName : PlayerNames){
+            if (PName == Name){
+                bNameFound = true;
+                break;
+            }
+        }
+
+    if (bNameFound){
+        UpdateHUD(Name, Score);
+    } else{
+        PlayerNames.Add(Name);     
+        UpdateHUD(Name, Score); 
+    }
+}
+
+void UScoreBoardUserWidget::UpdateHUD(FString Name, FString Score){
+    int32 Index = PlayerNames.Find(Name);
+    // UE_LOG(LogTemp, Warning, TEXT("Index %d"), Index);
+    if (Index != INDEX_NONE) {
+        switch (Index){
+            case 0:
+                PlayerName->SetText(FText::FromString(Name));
+                PlayerScore->SetText(FText::FromString(Score));
+                break;
+            case 1:
+                PlayerName_1->SetText(FText::FromString(Name));
+                PlayerScore_1->SetText(FText::FromString(Score));
+                break;
+            case 2:
+                PlayerName_2->SetText(FText::FromString(Name));
+                PlayerScore_2->SetText(FText::FromString(Score));
+                break;
+            case 3:
+                PlayerName_3->SetText(FText::FromString(Name));
+                PlayerScore_3->SetText(FText::FromString(Score));
+                break;
+            default:
+                break;
+        }
+        
+    }else { 
+        UE_LOG(LogTemp, Warning, TEXT("Invalid Index")); 
+    }
+}
+
+void UScoreBoardUserWidget::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME(UScoreBoardUserWidget, PlayerNames);
+}
+
+void UScoreBoardUserWidget::OnNameUpdate(){
 }

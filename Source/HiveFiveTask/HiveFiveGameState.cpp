@@ -2,35 +2,29 @@
 
 
 #include "HiveFiveGameState.h"
-#include "Net/UnrealNetwork.h"
-#include "HiveFivePlayerController.h"
-#include "HiveFiveHUD.h"
-#include "GameFramework/Pawn.h"
+#include "HiveFiveGameMode.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
+#include "HiveFivePlayerState.h"
 
 
 void AHiveFiveGameState::BeginPlay(){
-	Super::BeginPlay();
-
-    SetScore(0);
+	Super::BeginPlay(); 
 }
 
-void AHiveFiveGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AHiveFiveGameState, Score);
-}
+void AHiveFiveGameState::IterateOverConnectedPlayers(){
 
-void AHiveFiveGameState::OnRepScore(){
-   UpdateScore();
-}
+    FDateTime CurrentTime = FDateTime::Now();
+    FString CurrentTimeString = CurrentTime.ToString();
+    UE_LOG(LogTemp, Warning, TEXT("Current Time: %s"), *CurrentTimeString);
 
-void AHiveFiveGameState::UpdateScore(){
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	AHiveFivePlayerController* HiveFivePlayerController = Cast<AHiveFivePlayerController>(PlayerController);
-	if (PlayerController) {
-		AHiveFiveHUD* HUD = Cast<AHiveFiveHUD>(HiveFivePlayerController->GetHUD());
-		if (HUD) {
-			HUD->GetScoreBoard()->SetPlayerScore(FString::Printf(TEXT("%d"), Score));
-			UE_LOG(LogTemp, Warning, TEXT("%d"), Score);
-		}
-	}
+    UE_LOG(LogTemp, Warning, TEXT("Running On Server"))
+    for (APlayerState* PlayerState : PlayerArray){   
+        AHiveFivePlayerState* HiveFivePlayerState = Cast<AHiveFivePlayerState>(PlayerState);
+
+        FString PlayerName = HiveFivePlayerState->GetPlayerName();
+        int32 PlayerScore = HiveFivePlayerState->GetPlayerScore();
+
+        UE_LOG(LogTemp, Warning, TEXT("%s %d"), *PlayerName, PlayerScore);
+    }
 }

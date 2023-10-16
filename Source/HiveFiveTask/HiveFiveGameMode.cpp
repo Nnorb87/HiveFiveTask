@@ -8,8 +8,25 @@
 #include "GameFramework/PlayerStart.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h" 
+#include "GameFramework/PlayerState.h"
+#include "HiveFiveGameState.h"
+#include "HiveFivePlayerState.h"
+#include "HiveFiveHUD.h"
+#include "ScoreBoardUserWidget.h"
 
+void AHiveFiveGameMode::PostLogin(APlayerController* NewPlayer)
+{
+    Super::PostLogin(NewPlayer);
+    UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
 
+    if ( AHiveFivePlayerState* HiveFivePlayerState = Cast<AHiveFivePlayerState>(NewPlayer->PlayerState)){
+        FString PlayerName = HiveFivePlayerState->GetPlayerName();
+        int32 PlayerScore = HiveFivePlayerState->GetPlayerScore();
+        FString Authority = HasAuthority()? "Server":"Client";
+        UE_LOG(LogTemp, Warning, TEXT("Authority: %s Player Name: %s, Player Score: %d"),*Authority, *PlayerName, PlayerScore);
+        // HiveFivePlayerState->InitialUpdateHUD(PlayerName, FString::Printf(TEXT("%d"), PlayerScore));
+    }
+}
 
 void AHiveFiveGameMode::RequestRespawn(ACharacter *ElimmedCharacter, AController *ElimmedController){
     if (ElimmedCharacter){
@@ -31,8 +48,6 @@ void AHiveFiveGameMode::RequestRespawn(ACharacter *ElimmedCharacter, AController
         RestartPlayerAtPlayerStart(ElimmedController, PlayerStarts[Selection]); 
     }
 }
-
-
 
 bool AHiveFiveGameMode::IsThereAnyCollision(const FVector& SphereCenter, float SphereRadius)
 {

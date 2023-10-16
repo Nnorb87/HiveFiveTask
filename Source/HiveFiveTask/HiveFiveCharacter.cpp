@@ -42,7 +42,8 @@ AHiveFiveCharacter::AHiveFiveCharacter(){
 	FRotator RotationSpeed = FRotator(0.f,0.f,360.f);
 	CharacterMovementComponent->RotationRate = RotationSpeed;
 
-
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency= 33.f;
 }
 
 void AHiveFiveCharacter::BeginPlay(){

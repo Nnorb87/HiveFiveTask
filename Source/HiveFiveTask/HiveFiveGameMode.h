@@ -17,8 +17,11 @@ class HIVEFIVETASK_API AHiveFiveGameMode : public AGameMode
 public:
 	void RequestRespawn(class ACharacter* ElimCharacter, AController* ElimmedController);
 	bool IsThereAnyCollision(const FVector& SphereCenter, float SphereRadius);
+    virtual void PostLogin(APlayerController* NewPlayer) override;
 
 private:
 	int32 Selection;
+
+
 
 };

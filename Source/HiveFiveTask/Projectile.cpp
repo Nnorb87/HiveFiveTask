@@ -6,6 +6,7 @@
 #include "HiveFivePlayerController.h"
 #include "GameFramework/GameStateBase.h"
 #include "HiveFiveGameState.h"
+#include "HiveFivePlayerState.h"
 
 AProjectile::AProjectile(){
 	bReplicates = true;
@@ -41,20 +42,13 @@ void AProjectile::Tick(float DeltaTime){
 }
 
 void AProjectile::Onhit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit){
-	AHiveFiveCharacter* HiveFiveCharacter = Cast<AHiveFiveCharacter>(OtherActor);
-	if(HiveFiveCharacter){
+	if(AHiveFiveCharacter* HiveFiveCharacter = Cast<AHiveFiveCharacter>(OtherActor)){
 		AHiveFiveCharacter* ProjectileOwnerCharacter = Cast<AHiveFiveCharacter>(GetOwner());
-		APlayerController* PlayerController = Cast<APlayerController>(ProjectileOwnerCharacter->GetController());
-            if (PlayerController){
-                AGameStateBase* GameState = PlayerController->GetWorld()->GetGameState();
-				if(GameState){
-					AHiveFiveGameState* HFGameState = Cast<AHiveFiveGameState>(GameState);
-					if (HFGameState){
-						HFGameState->IncreaseScore();
-						if (HasAuthority()){
-							HFGameState->UpdateScore();
-						}
-					}
+
+            if (APlayerController* PlayerController = Cast<APlayerController>(ProjectileOwnerCharacter->GetController())){
+				
+				if(AHiveFivePlayerState* HiveFivePlayerState = Cast<AHiveFivePlayerState>(PlayerController->PlayerState)){
+					HiveFivePlayerState->UpdateScore();
 				}
             }
 		HiveFiveCharacter->PlayerRespawn();
