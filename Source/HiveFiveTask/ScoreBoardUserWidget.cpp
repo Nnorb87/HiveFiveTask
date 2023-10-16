@@ -22,8 +22,6 @@ void UScoreBoardUserWidget::SetPlayerScore(FString NewText) {
 }
 
 void UScoreBoardUserWidget::SetPlayerData(FString Name, FString Score) {
-    UE_LOG(LogTemp, Warning, TEXT("SetPlayerData"));
-    
     if (PlayerNames.Contains(Name)){
         UpdateHUD(Name, Score);
     } else{
@@ -33,7 +31,6 @@ void UScoreBoardUserWidget::SetPlayerData(FString Name, FString Score) {
 }
 
 void UScoreBoardUserWidget::UpdateHUD(FString Name, FString Score){
-    UE_LOG(LogTemp, Warning, TEXT("UpdateHUD"));
     int32 Index = PlayerNames.Find(Name);
     if (Index != INDEX_NONE) {
         switch (Index){

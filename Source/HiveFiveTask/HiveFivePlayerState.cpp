@@ -4,15 +4,22 @@
 #include "HiveFiveHUD.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
+#include "HiveFivePlayerState.h"
+#include "HiveFiveGameState.h"
 #include "DrawDebugHelpers.h"
+#include "ScoreBoardUserWidget.h"
 
 AHiveFivePlayerState::AHiveFivePlayerState(){
 		SetPlayerScore(0);
  }
 
 void AHiveFivePlayerState::BeginPlay(){
+	AHiveFiveGameState* HFGameState = Cast<AHiveFiveGameState>(GetWorld()->GetGameState());
+    if (HFGameState){
+        InitialUpdateHUD(HFGameState->PlayerNamesArray);
+	}
 }
-
+	
 void AHiveFivePlayerState::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
 }
@@ -24,14 +31,12 @@ void AHiveFivePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> 
 
 void AHiveFivePlayerState::OnRepScore(){
 	// On Change of PlayerScore Client Updates thier HUD
-    // UE_LOG(LogTemp, Warning, TEXT("Client: %s %d"),*GetPlayerName(), PlayerScore);
 	UpdateHUD();
 }
 
 void AHiveFivePlayerState::UpdateScore(){
 		// Server Calls it Changes PlayerScore and initiates OnRepScore so clients will syncronize thier HUD-s
 		IncreaseScore();
-		// UE_LOG(LogTemp, Warning, TEXT("Server: %s %d"),*GetPlayerName(), PlayerScore);
 		UpdateHUD();
 }
 
@@ -48,8 +53,6 @@ void AHiveFivePlayerState::UpdateHUD(){
 }
 
 void AHiveFivePlayerState::InitialUpdateHUD(TArray<FString> PlayerNamesArray){
-		UE_LOG(LogTemp, Warning, TEXT("InitialUpdateHUD"));
-
 		if (AHiveFivePlayerController* HiveFivePlayerController =Cast<AHiveFivePlayerController>(GetWorld()->GetFirstPlayerController())){
 			
 			if (AHiveFiveHUD* HUD = Cast<AHiveFiveHUD>(HiveFivePlayerController->GetHUD())) {

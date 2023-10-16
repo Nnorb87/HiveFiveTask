@@ -16,23 +16,14 @@ public:
 
 	void PlayerRespawn();
 
-	UFUNCTION(Blueprintcallable)
-	void OpenLobby();
-
-	UFUNCTION(Blueprintcallable)
-	void CallOpenLevel(const FString& Address);
-
-	UFUNCTION(Blueprintcallable)
-	void CallClientTravel(const FString& Address);
-
 protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* BaseMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USceneComponent* ProjectileSpawnPoint;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")

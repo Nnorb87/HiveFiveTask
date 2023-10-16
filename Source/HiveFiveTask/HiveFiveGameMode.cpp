@@ -20,12 +20,9 @@ void AHiveFiveGameMode::PostLogin(APlayerController* NewPlayer)
 
     if(!HasAuthority()){return;}
 
-    UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
-
     if ( AHiveFivePlayerState* HiveFivePlayerState = Cast<AHiveFivePlayerState>(NewPlayer->PlayerState)){
         FString PlayerName = HiveFivePlayerState->GetPlayerName();
         int32 PlayerScore = HiveFivePlayerState->GetPlayerScore();
-        UE_LOG(LogTemp, Warning, TEXT("Player Name: %s, Player Score: %d"), *PlayerName, PlayerScore);
         if (AHiveFiveGameState* HFGameState = GetGameState<AHiveFiveGameState>()){
             HFGameState->StoreClientNames(PlayerName, FString::Printf(TEXT("%d"), PlayerScore));
         }
@@ -59,9 +56,36 @@ bool AHiveFiveGameMode::IsThereAnyCollision(const FVector& SphereCenter, float S
     TArray<FHitResult> OverlappingActors;
     UWorld* World = GetWorld();
     if (World->SweepMultiByChannel(OverlappingActors, SphereCenter, SphereCenter, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(SphereRadius), CollisionParams)){
-        DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, false, 5.f, 0, 1);
+        // DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, false, 5.f, 0, 1);
         return true;
     }
-    DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Green, false, 5.f, 0, 1);
+    // DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Green, false, 5.f, 0, 1);
     return false;
 }
+
+// Multiplayer joining part for builds
+void AHiveFiveGameMode::OpenLobby(){
+	UWorld* world = GetWorld();
+	world->ServerTravel("/Game/PlayLevel?listen");
+		if(GEngine){
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Blue,
+				FString::Printf(TEXT("Multiplayer level loading"))
+			);
+		}
+
+}
+
+void AHiveFiveGameMode::CallClientTravel(const FString& Address){
+    APlayerController* playerController = GetGameInstance()->GetFirstLocalPlayerController();
+    if(playerController){
+        playerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+    }
+}
+
+void AHiveFiveGameMode::CallOpenLevel(const FString& Address){
+	UGameplayStatics::OpenLevel(this, *Address);
+}
+

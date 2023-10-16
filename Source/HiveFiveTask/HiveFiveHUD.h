@@ -1,25 +1,17 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
 #include "Blueprint/UserWidget.h"
-#include "ScoreBoardUserWidget.h"
 #include "HiveFiveHUD.generated.h"
 
-
-
-/**
- * 
- */
 UCLASS()
 class HIVEFIVETASK_API AHiveFiveHUD : public AHUD
 {
 	GENERATED_BODY()
 
 public:
-	UScoreBoardUserWidget* GetScoreBoard(){return ScoreBoardWidget;}
+	class UScoreBoardUserWidget* GetScoreBoard(){return ScoreBoardWidget;}
 
 protected:
 	virtual void BeginPlay() override;
@@ -27,8 +19,17 @@ protected:
 private:
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UScoreBoardUserWidget> ScoreBoardWidgetClass;
+	TSubclassOf<class UScoreBoardUserWidget> ScoreBoardWidgetClass;
 
-	UScoreBoardUserWidget* ScoreBoardWidget;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UMultiplayerMenuWidget> MultiPlayerMenuWidgetClass;
+
+	class UScoreBoardUserWidget* ScoreBoardWidget;
+
+	class UMultiplayerMenuWidget* MultiPlayerMenuWidget;
+
+	void CreateScoreBoardWidget();
+
+	void CreateMultiplayerMenuWidget();
 
 };

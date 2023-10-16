@@ -14,12 +14,10 @@ void AHiveFiveGameState::BeginPlay(){
 }
 
 void AHiveFiveGameState::StoreClientNames(FString PName, FString PScore){
-	UE_LOG(LogTemp, Warning, TEXT("StoreClientNames"));
 	PlayerNamesArray.Add(PName);
-	
-		for (const FString& Element : PlayerNamesArray){
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *Element);
-		}
+	// for (const FString& Element : PlayerNamesArray){
+	// 	UE_LOG(LogTemp, Warning, TEXT("%s"), *Element);
+	// }
 	if (HasAuthority()){
 		IterateOverConnectedPlayers();
 	}
@@ -39,7 +37,6 @@ void AHiveFiveGameState::OnNameUpdate(){
 }
 
 void AHiveFiveGameState::IterateOverConnectedPlayers(){
-    UE_LOG(LogTemp, Warning, TEXT("IterateOverConnectedPlayers"))
     for (APlayerState* PlayerState : PlayerArray){   
         AHiveFivePlayerState* HiveFivePlayerState = Cast<AHiveFivePlayerState>(PlayerState);
 		HiveFivePlayerState->InitialUpdateHUD(PlayerNamesArray);
