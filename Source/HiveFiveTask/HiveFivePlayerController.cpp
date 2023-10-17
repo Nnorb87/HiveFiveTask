@@ -11,9 +11,9 @@ void AHiveFivePlayerController::OnRep_Pawn(){
 }
 
 void AHiveFivePlayerController::FixSimpleMoveToLocation(){
+    //Fixes a replication bug where SimpleMove doesnt updates properly on clients
+    //UPathFollowingComponent registers only to server-only delegates for detect pawn changes.
      if (!HasAuthority()){
-        // UPathFollowingComponent registers only to server-only delegates for detect pawn changes.
-        //Invoke the same functionality on the client-side.
         UPathFollowingComponent* PathFollowingComp = FindComponentByClass<UPathFollowingComponent>();
         if (PathFollowingComp){
             PathFollowingComp->UpdateCachedComponents();

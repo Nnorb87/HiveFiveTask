@@ -10,10 +10,12 @@ class HIVEFIVETASK_API AProjectile : public AActor
 	GENERATED_BODY()
 	
 public:	
+
 	AProjectile();
-	virtual void Tick(float DeltaTime) override;
+	
 
 protected:
+
 	virtual void BeginPlay() override;
 
 private:	

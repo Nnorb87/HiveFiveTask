@@ -11,30 +11,37 @@ class HIVEFIVETASK_API AHiveFivePlayerState : public APlayerState
 
 public:
  	AHiveFivePlayerState();
-	void IncreaseScore(){++PlayerScore;}
+
 	int32 GetPlayerScore(){return PlayerScore;}
+
 	void SetPlayerScore(int32 NewScore){ PlayerScore = NewScore;}
-	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
 
 	void UpdateScore();
 
 	void InitialUpdateHUD(TArray<FString> PlayerNamesArray);
 
-	int32 GetDisplayIndex(FString PName, FString PScore);
+	void SetPlayerCanMove(bool Value){ bPlayerCanMove = Value;}
+
+	bool GetPlayerCanMove(){return bPlayerCanMove;}
+
+protected:
+
+	virtual void BeginPlay() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
+
+private:
+
+	void IncreaseScore(){++PlayerScore;}
+
+	void UpdateHUD();
 
 	UPROPERTY(ReplicatedUsing = OnRepScore)
 	int32 PlayerScore;
 
 	UFUNCTION()
 	void OnRepScore();
-
-	void UpdateHUD();
-
-
-protected:
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-
-private:
+	
+	bool bPlayerCanMove = true;
 
 };

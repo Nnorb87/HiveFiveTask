@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -14,9 +12,13 @@ class HIVEFIVETASK_API AHiveFivePlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-public:
-	void FixSimpleMoveToLocation();
+protected:
 
 	virtual void OnRep_Pawn() override;
+
+private:
+
+	void FixSimpleMoveToLocation();
+
 	
 };

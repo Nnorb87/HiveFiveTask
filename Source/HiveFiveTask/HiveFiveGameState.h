@@ -13,23 +13,35 @@ class HIVEFIVETASK_API AHiveFiveGameState : public AGameState
 
 public:
 
-	UPROPERTY(ReplicatedUsing = OnNameUpdate)
-	TArray<FString> PlayerNamesArray;
+	void StoreClientNames(FString PName, FString PScore);
+
+	TArray<FString> GetPlayerNames();
+
+	void CheckPlayerScores();
+
+protected:
+
+	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
+
+private:
 
 	UFUNCTION()
 	void OnNameUpdate();
 
-	void StoreClientNames(FString PName, FString PScore);
-
 	void IterateOverConnectedPlayers();
 
-	TArray<FString> GetPlayerNames();
+	UPROPERTY(ReplicatedUsing = OnNameUpdate)
+	TArray<FString> PlayerNamesArray;
 
-protected:
-	virtual void BeginPlay() override;
+	UPROPERTY(EditAnyWhere)
+	int32 KillGoal = 10;
 
+	void EndTheGame(const FString& PlayerName);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiEndTheGame(const FString& PlayerName);
 
 };
 

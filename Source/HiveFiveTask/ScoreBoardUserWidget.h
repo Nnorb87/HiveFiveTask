@@ -15,6 +15,11 @@ class HIVEFIVETASK_API UScoreBoardUserWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+
+	void SetPlayerData(FString Name, FString Score);
+
+private:
+
 	UPROPERTY(EditAnyWhere, meta = (BindWidget))
 	class UTextBlock* PlayerName;
 
@@ -44,13 +49,8 @@ public:
 	UPROPERTY(EditAnyWhere, meta = (BindWidget))
 	class UVerticalBox * VerticalBox;
 
-	void SetPlayerName(FString NewText);
-
-	void SetPlayerScore(FString NewText);
-
-	void SetPlayerData(FString Name, FString Score);
+	TArray<FString> PlayerNames;
 
 	void UpdateHUD(FString Name, FString Score);
 
-	TArray<FString> PlayerNames;
 };

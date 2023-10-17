@@ -10,16 +10,19 @@ class HIVEFIVETASK_API AHiveFiveCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
+
 	AHiveFiveCharacter();
-	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void PlayerRespawn();
 
 protected:
+
 	virtual void BeginPlay() override;
 
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 private:
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* BaseMesh;
 
@@ -42,28 +45,23 @@ private:
 	TSubclassOf<class AProjectile> ProjectileClass;
 
 	class UCharacterMovementComponent* CharacterMovementComponent;
+
 	FVector TargetVector = FVector::ZeroVector;
+	
 	APlayerController* PlayerControllerRef;
 	
 	void MoveClick();
+
 	void MoveToLocation(AController* PlayerController, const FVector& TargetLocation);
+
 	FVector FindNearestNavMeshPoint(const FVector& Location);
 
-
-	void Move(float Value);
-
-	UFUNCTION(Server, Reliable)
-	void ServerMovement(float Value);
-
-	void Turn(float Value);
-	UFUNCTION(Server, Reliable)
-
-	void ServerTurn(float Value);
+	bool CanPlayerMove();
 
 	void Fire();
 
-	void SpawnProjectile();
-
 	UFUNCTION(Server, Reliable)
 	void ServerFire();
+
+	void SpawnProjectile();
 };

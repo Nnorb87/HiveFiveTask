@@ -25,7 +25,13 @@ void UMultiplayerMenuWidget::NativeConstruct(){
         ExitGameButton->OnClicked.AddDynamic(this, &UMultiplayerMenuWidget::OnClickExit);
     }
 
-    SetIpAddressShowBlock();
+    if (GameOverText){
+        GameOverText->SetVisibility(ESlateVisibility::Hidden);
+    }
+
+     if (GameOverBorder){
+        GameOverBorder->SetVisibility(ESlateVisibility::Hidden);
+    }
 }
 
 void UMultiplayerMenuWidget::OnClickHost(){   
@@ -33,7 +39,7 @@ void UMultiplayerMenuWidget::OnClickHost(){
     if (PlayerController)    {
         AHiveFiveGameMode* HFGameMode = Cast<AHiveFiveGameMode>(UGameplayStatics::GetGameMode(PlayerController->GetWorld()));
         if (HFGameMode){
-            HFGameMode->OpenLobby();
+            HFGameMode->HostServer();
         }
     }
 }
@@ -45,7 +51,7 @@ void UMultiplayerMenuWidget::OnClickJoin(){
     if (PlayerController)    {
         AHiveFiveGameMode* HFGameMode = Cast<AHiveFiveGameMode>(UGameplayStatics::GetGameMode(PlayerController->GetWorld()));
         if (HFGameMode){
-            HFGameMode->CallClientTravel(ServerIP);
+            HFGameMode->JoinToHost(ServerIP);
         }
     }
 }
@@ -58,5 +64,10 @@ void UMultiplayerMenuWidget::OnClickExit(){
     }
 }
 
-void UMultiplayerMenuWidget::SetIpAddressShowBlock(){
+void UMultiplayerMenuWidget::ShowGameOver(FString PlayerName){
+    if (GameOverText){
+        GameOverText->SetVisibility(ESlateVisibility::Visible);
+        GameOverBorder->SetVisibility(ESlateVisibility::Visible);
+        GameOverText->SetText(FText::FromString(PlayerName));
+    }
 }

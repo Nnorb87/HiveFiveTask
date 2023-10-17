@@ -12,8 +12,10 @@ class HIVEFIVETASK_API AHiveFiveHUD : public AHUD
 
 public:
 	class UScoreBoardUserWidget* GetScoreBoard(){return ScoreBoardWidget;}
+	class UMultiplayerMenuWidget* GetMultiPlayerMenu(){return MultiPlayerMenuWidget;}
 
 protected:
+
 	virtual void BeginPlay() override;
 	
 private:

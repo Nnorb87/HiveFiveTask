@@ -15,22 +15,23 @@ class HIVEFIVETASK_API AHiveFiveGameMode : public AGameMode
 	GENERATED_BODY()
 	
 public:
+
 	void RequestRespawn(class ACharacter* ElimCharacter, AController* ElimmedController);
-	bool IsThereAnyCollision(const FVector& SphereCenter, float SphereRadius);
-    virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	UFUNCTION()
-	void OpenLobby();
+	void HostServer();
 
 	UFUNCTION()
-	void CallOpenLevel(const FString& Address);
+	void JoinToHost(const FString& Address);
 
-	UFUNCTION()
-	void CallClientTravel(const FString& Address);
+protected:
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 private:
+
 	int32 Selection;
 
-
+	bool IsThereAnyCollision(const FVector& SphereCenter, float SphereRadius);
 
 };

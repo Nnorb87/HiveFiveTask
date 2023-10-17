@@ -11,6 +11,7 @@
 AProjectile::AProjectile(){
 	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = true;
+
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	SetRootComponent(CollisionBox);
 	CollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
@@ -37,10 +38,6 @@ void AProjectile::BeginPlay(){
 	
 }
 
-void AProjectile::Tick(float DeltaTime){
-	Super::Tick(DeltaTime);
-}
-
 void AProjectile::Onhit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit){
 	if(AHiveFiveCharacter* HiveFiveCharacter = Cast<AHiveFiveCharacter>(OtherActor)){
 		AHiveFiveCharacter* ProjectileOwnerCharacter = Cast<AHiveFiveCharacter>(GetOwner());
@@ -49,6 +46,9 @@ void AProjectile::Onhit(UPrimitiveComponent *HitComp, AActor *OtherActor, UPrimi
 				
 				if(AHiveFivePlayerState* HiveFivePlayerState = Cast<AHiveFivePlayerState>(PlayerController->PlayerState)){
 					HiveFivePlayerState->UpdateScore();
+					if (AHiveFiveGameState* HFGameState = Cast<AHiveFiveGameState>(GetWorld()->GetGameState())){
+						HFGameState->CheckPlayerScores();
+					}
 				}
             }
 		HiveFiveCharacter->PlayerRespawn();
