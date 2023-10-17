@@ -83,9 +83,9 @@ void AHiveFiveCharacter::MoveClick(){
 			HitResult.ImpactPoint,
 			10.f,
 			12,
-			FColor::Red,
+			FColor::Green,
 			false,
-			5.f
+			1.f
 			);
 		}
 
